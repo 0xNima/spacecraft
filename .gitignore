@@ -1,0 +1,6 @@
+/target
+.env
+Procfile
+rust-toolchain
+*.json
+.idea
