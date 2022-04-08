@@ -252,6 +252,6 @@ pub async fn get_space(space_id: &str, bot: &AutoSend<Bot>, chat_id: i64) {
             download(pl_location, bot_copy, chat_id, sid).await;
         });
     } else {
-        bot.send_message(chat_id, "Can't download space. Please try later").await;
+        bot.send_message(chat_id, "Spacecraft crash into asteroid 🛸 ☄️. Please try later").await;
     }
 }
