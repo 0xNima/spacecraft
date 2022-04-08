@@ -141,7 +141,7 @@ async fn download_playlist(client: &Client, location: &str) -> Option<Vec<MediaS
     None
 }
 
-async fn get_acc_file(uri: String) -> bytes::Bytes {
+async fn get_aac_file(uri: String) -> bytes::Bytes {
     loop {
         if let Ok(response) = reqwest::get(&uri).await {
             if response.status().as_u16() != 200 {
@@ -173,7 +173,7 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
             for segment in chunck {
                 let address = format!("{}/{}", base_location, &segment.uri);
                 let join = tokio::task::spawn(async {
-                    get_acc_file(address).await
+                    get_aac_file(address).await
                 });
                 joins.push(join);
             }
