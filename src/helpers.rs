@@ -152,7 +152,7 @@ async fn get_acc_file(uri: String) -> bytes::Bytes {
                 return _bytes
             }
         }
-        sleep(Duration::from_millis(100)).await;
+        sleep(Duration::from_millis(50)).await;
     }
 }
 
@@ -208,7 +208,7 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
             
             chunk_number+=1;
 
-            sleep(Duration::from_millis(100)).await;
+            sleep(Duration::from_millis(50)).await;
         }        
 
         log::info!("[{}] partitioning last part... - length: {}", &space_id, buf.len());
