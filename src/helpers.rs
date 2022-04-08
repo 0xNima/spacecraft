@@ -231,7 +231,7 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
                 let res = bot.send_audio(chat_id, input_file).await;
     
                 if res.is_ok() {
-                    break
+                    continue
                 }
 
                 log::error!("[{}] send failed: {:?}", &space_id, res);
