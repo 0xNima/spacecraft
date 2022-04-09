@@ -190,7 +190,7 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
                         input_files.push(
                             InputFile::memory(buf.copy_to_bytes(buf.len()))
                             .file_name(
-                                format!("{}-part{}", &space_id, part)
+                                format!("{}-part{}.aac", &space_id, part)
                             )
                         );
 
@@ -217,7 +217,7 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
         input_files.push(
             InputFile::memory(buf.copy_to_bytes(buf.len()))
             .file_name(
-                format!("{}-part{}", &space_id, part)
+                format!("{}-part{}.aac", &space_id, part)
             )
         );
         
@@ -227,17 +227,17 @@ async fn download(pl_location: String, bot: AutoSend<Bot>, chat_id: i64, space_i
 
 
         for input_file in input_files {
-            // loop {
-                let res = bot.send_audio(chat_id, input_file).await;
+            loop {
+                let res = bot.send_audio(chat_id, input_file.clone()).await; // TODO: there might be more efficient way than input_file.clone()
     
                 if res.is_ok() {
-                    continue
+                    break
                 }
 
                 log::error!("[{}] send failed: {:?}", &space_id, res);
     
-                // sleep(Duration::from_millis(100)).await;
-            // }
+                sleep(Duration::from_millis(50)).await;
+            }
         }
     }
 }
