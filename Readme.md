@@ -1,4 +1,4 @@
-# Spacecraft: yet another telegram bot to downloading twitter spaces
+# Spacecraft: yet another telegram bot to downloading x spaces
 
 ## Setting up your environment
  1. [Download Rust](http://rustup.rs/).
