@@ -17,10 +17,10 @@ use tokio::time::{sleep, Duration};
 
 
 lazy_static::lazy_static! {
-    static ref TWITTER_GUEST_TOKEN_URL: &'static str = "https://api.twitter.com/1.1/guest/activate.json";
-    static ref TWITTER_GUEST_BEARER_TOKEN: String = format!("Bearer {}", env::var("TWITTER_GUEST_BEARER_TOKEN").unwrap());
-    static ref TWITTER_AUDIO_SPACE_URL: String = format!(
-        "https://twitter.com/i/api/graphql/{}/AudioSpaceById?variables=\
+    static ref X_GUEST_TOKEN_URL: &'static str = "https://api.x.com/1.1/guest/activate.json";
+    static ref X_GUEST_BEARER_TOKEN: String = format!("Bearer {}", env::var("X_GUEST_BEARER_TOKEN").unwrap());
+    static ref X_AUDIO_SPACE_URL: String = format!(
+        "https://x.com/i/api/graphql/{}/AudioSpaceById?variables=\
         %7B%22id%22%3A%22{{ID}}%22%2C%22isMetatagsQuery%22%3Afalse%2C%22withSuperFollowsUserFields%22%3Afalse%2C\
         %22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C\
         %20%22withSuperFollowsTweetFields%22%3Afalse%2C%22withReplays%22%3Afalse%2C\
@@ -29,7 +29,7 @@ lazy_static::lazy_static! {
         ",
         env::var("GRAPHQL_PATH").unwrap()
     );
-    static ref TWITTER_SPACE_METADATA_URL: &'static str = "https://twitter.com/i/api/1.1/live_video_stream/status/{MEDIA_KEY}?client=web&use_syndication_guest_id=false&cookie_set_host=twitter.com";
+    static ref X_SPACE_METADATA_URL: &'static str = "https://x.com/i/api/1.1/live_video_stream/status/{MEDIA_KEY}?client=web&use_syndication_guest_id=false&cookie_set_host=x.com";
     pub static ref DATABASE_URL: String = env::var("DATABASE_URL").unwrap();
 }
 
@@ -45,7 +45,7 @@ pub enum TwitterID {
 
 
 pub fn twitt_id(link: &str) -> TwitterID {
-    if link.starts_with("https://twitter.com/i/spaces/") {
+    if link.starts_with("https://x.com/i/spaces/") {
         let splited: Vec<&str> = (&link[29..]).split("?").collect();
         if splited.len() > 0 {
             return TwitterID::SpaceId(splited[0].to_string())
@@ -55,8 +55,8 @@ pub fn twitt_id(link: &str) -> TwitterID {
 }
 
 async fn guest_token(client: &Client) -> Option<String> {
-    let resp = client.post(*TWITTER_GUEST_TOKEN_URL)
-                     .header("AUTHORIZATION", &*TWITTER_GUEST_BEARER_TOKEN)
+    let resp = client.post(*X_GUEST_TOKEN_URL)
+                     .header("AUTHORIZATION", &*X_GUEST_BEARER_TOKEN)
                      .send()
                      .await;
     if let Ok(response) = resp {
@@ -72,18 +72,18 @@ async fn guest_token(client: &Client) -> Option<String> {
 }
 
 fn media_key_url(id: &str) -> String {
-    return TWITTER_AUDIO_SPACE_URL.replace("{ID}", id)
+    return X_AUDIO_SPACE_URL.replace("{ID}", id)
 }
 
 fn metadata_url(media_key: &str) -> String {
-    return TWITTER_SPACE_METADATA_URL.replace("{MEDIA_KEY}", media_key)
+    return X_SPACE_METADATA_URL.replace("{MEDIA_KEY}", media_key)
 }
 
 async fn space_media_key(client: &Client, space_id: &str) -> Option<SpaceMetadata> {
     if let Some(token) = guest_token(&client).await {
         let resp = client.get(&media_key_url(space_id))
                      .header("x-guest-token", &token)
-                     .header("Authorization", &*TWITTER_GUEST_BEARER_TOKEN)
+                     .header("Authorization", &*X_GUEST_BEARER_TOKEN)
                      .send()
                      .await;
         
@@ -103,7 +103,7 @@ async fn space_media_key(client: &Client, space_id: &str) -> Option<SpaceMetadat
 async fn space_playlist(client: &Client, space_id: &str) -> Option<String> {
     if let Some(space_obj) = space_media_key(client, space_id).await {
         let resp = client.get(metadata_url(&space_obj.media_key))
-                     .header("AUTHORIZATION", &*TWITTER_GUEST_BEARER_TOKEN)
+                     .header("AUTHORIZATION", &*X_GUEST_BEARER_TOKEN)
                      .header("X-Guest-Token", space_obj.token.unwrap())
                      .send()
                      .await;
